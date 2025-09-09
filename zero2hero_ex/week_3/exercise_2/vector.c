@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "vector.h"
 
-#define INIT_CAP 5
-
-typedef struct vector {
-    int * v;
-    int len;
-    int cap;
-} vector;
+/* vector functions & structs*/
 
 vector * init() {
     
@@ -43,13 +38,18 @@ void push(vector * vec, int num) {
 
 }
 
-int main() {
-    vector * vec = init();
+void print(vector * vec) {
 
-    push(vec, 12);
-    push(vec, 13);
-    push(vec, 14);
-    push(vec, 15);
+    printf("[");
 
+    for (int i = 0; i < vec->len; i++) {
+        printf("%d", vec->v[i]);
+        
+        if (i < vec->len - 1) {
+            printf(", ");
+        }
+    }
 
+    printf("]\n");
 }
+
