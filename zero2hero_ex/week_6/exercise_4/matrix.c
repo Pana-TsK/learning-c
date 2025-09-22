@@ -1,3 +1,8 @@
+/*
+This could have honestly been done in a less messy way if I used structs and Typedef,
+and I would refactor it, but I want to move on to new challenges.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -7,10 +12,13 @@
 /* matrix handling utils */
 double ** create_matrix(size_t * n_rows, size_t * n_cols);
 void print_array(double ** matrix, size_t n_rows, size_t n_cols);
+void cleanup(double ** matrix, size_t n_rows);
 
 /* matrix transposing & multiplication */
 double ** transpose(double ** matrix, size_t n_rows, size_t n_cols, size_t * tn_rows, size_t * tn_cols);
-void cleanup(double ** matrix, size_t n_rows);
+double ** matmul(double ** mat1, double ** mat2, size_t n_rows_1, size_t n_cols_1, 
+                 size_t n_rows_2, size_t n_cols_2, size_t * n_rows_out, 
+                 size_t * n_cols_out);
 
 int main(int argc, char ** argv)
 {
@@ -21,6 +29,10 @@ int main(int argc, char ** argv)
     size_t t_rows, t_cols;
     double ** t_mat = transpose(matrix, n_rows, n_cols, &t_rows, &t_cols);
     print_array(t_mat, t_rows, t_cols);
+
+    size_t n_rows_out, n_cols_out;
+    double ** mul_mat = matmul(matrix, t_mat, n_rows, n_cols, t_rows, t_cols, &n_rows_out, &n_cols_out);
+    print_array(mul_mat, n_rows_out, n_cols_out);
 
     cleanup(matrix, n_rows);
     return 0;
@@ -148,4 +160,33 @@ double ** transpose(double ** matrix, size_t n_rows, size_t n_cols, size_t * t_r
     }
 
     return t_matrix;
+}
+
+/* perform matrix multiplication */
+double ** matmul(double ** mat1, double ** mat2, size_t n_rows_1, size_t n_cols_1, 
+                 size_t n_rows_2, size_t n_cols_2, size_t * n_rows_out, 
+                 size_t * n_cols_out)
+{
+    if (n_cols_1 != n_rows_2) {
+        fprintf(stderr, "Matrix dimensions do not match for multiplication.\n");
+        return NULL;
+    }
+
+    double **product = malloc(n_rows_1 * sizeof(double *));
+    for (size_t i = 0; i < n_rows_1; i++) {
+        product[i] = calloc(n_cols_2, sizeof(double)); // calloc sets to 0
+    }
+
+    for (size_t i = 0; i < n_rows_1; i++) {
+        for (size_t j = 0; j < n_cols_2; j++) {
+            for (size_t k = 0; k < n_cols_1; k++) {
+                product[i][j] += mat1[i][k] * mat2[k][j];
+            }
+        }
+    }
+
+    *n_rows_out = n_rows_1;
+    *n_cols_out = n_cols_2;
+
+    return product;
 }
